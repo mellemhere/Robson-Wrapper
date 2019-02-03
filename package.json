@@ -1,0 +1,15 @@
+{
+  "name": "robson",
+  "version": "1.0.0",
+  "description": "Whatsapp wrapper",
+  "main": "chat.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "mellemhere",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer": "^1.12.1",
+    "winston": "^3.2.1"
+  }
+}
