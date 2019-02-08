@@ -82,6 +82,8 @@ async function ignite() {
 		userDataDir: "./robson_data",
 		args: [
 		'--disable-gpu',
+		'--unlimited-storage',
+		'--full-memory-crash-report',
 		'--disable-dev-shm-usage',
 		'--disable-infobars',
 		'--window-position=0,0',
@@ -97,7 +99,7 @@ async function ignite() {
 	page = await browser.newPage();
 	page.on('error', msg => {
 		console.log('Deu erro!');
-		console.log(error);
+		console.log(msg);
         throw msg ;
     });
 	const override = Object.assign(page.viewport(), {width: 1366});
