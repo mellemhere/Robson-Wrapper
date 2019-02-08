@@ -82,6 +82,7 @@ async function ignite() {
 		userDataDir: "./robson_data",
 		args: [
 		'--disable-gpu',
+		'--disable-dev-shm-usage',
 		'--disable-infobars',
 		'--window-position=0,0',
 		'--ignore-certificate-errors',
@@ -226,6 +227,27 @@ async function readMessage(){
 	
 }
 
+
+function processCommand(message){
+	return new Promise((resolve, reject) => {
+		var realMessage = message.toLowerCase();
+
+		switch(realMessage){
+			case "ping":
+				resolve("pong");
+				break;
+			case "dado":
+				resolve('O dado deu: *' + Math.floor(Math.random() * 6) + '*');
+				break;
+			default:
+				resolve(`Não entendi o comando *${message}*`);
+				break;
+		}
+
+
+	});
+}
+
 /*
 	MAIN LOOP
 */
@@ -239,7 +261,9 @@ async function brain() {
 			console.log(message);
 			logger.log('info', 'Nova mensagem:');
 			logger.log('info', message);
-			await sendMessageOnChat(message.message);
+			await processCommand(message).then((response) => {
+				await sendMessageOnChat(response);
+			});
 		}
 	}
 
