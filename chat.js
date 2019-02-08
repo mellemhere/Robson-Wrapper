@@ -168,6 +168,8 @@ async function sendMessageOnChat(message) {
       	}
 
       	await page.keyboard.press('Enter');
+      	await page.keyboard.press('Enter');
+
 	} catch (e) {
 	    logger.log('error', e);
 	}
