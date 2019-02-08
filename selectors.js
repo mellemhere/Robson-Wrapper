@@ -33,6 +33,27 @@ module.exports = {
 	/*
 		Chat input
 	*/
-	chatInput: '#main > footer div.selectable-text[contenteditable]'
+	chatInput: '#main > footer div.selectable-text[contenteditable]',
+
+	/*
+		Unread messages
+	*/
+	unreadMessage: '#pane-side .CxUIE',
+
+	/*
+		RECIVED MESSAGES
+	*/
+	recivedMessages: '.copyable-area .message-in .selectable-text',
+
+	/*
+		Header chat
+	*/
+	headerChat: '#main header',
+
+	/*
+		Information
+		Name, phone, etc..
+	*/
+	userInfo: '.copyable-area span[dir="auto"] span'
 
 };

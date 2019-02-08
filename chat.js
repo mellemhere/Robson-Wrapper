@@ -2,12 +2,20 @@ const puppeteer = require('puppeteer');
 const { createLogger, format, transports } = require('winston');
 const selectors = require('./selectors');
 const { timestamp, label, printf } = format;
+const readline = require('readline');
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 /*
 	Global vars
 */
 let browser;
 let page;
 let logger;
+
+let lastReadMessage = {phone: '', message: ''};
 
 /*
 	Logger format
@@ -141,6 +149,83 @@ function sendMessage(phoneNumber, message) {
 	});
 } 
 
+async function sendMessageOnChat(message) {
+
+	try {
+		/*
+			Lets type the message
+		*/
+		await page.click(selectors.chatInput);
+		let parts = message.split('\n');
+
+      	for (var i = 0; i < parts.length; i++) {
+	        await page.keyboard.down('Shift');
+	        await page.keyboard.press('Enter');
+	        await page.keyboard.up('Shift');
+
+	        await page.keyboard.type(parts[i]);
+      	}
+
+      	await page.keyboard.press('Enter');
+	} catch (e) {
+	    logger.log('error', e);
+	}
+
+} 
+
+
+async function hasNewMessage(){
+	return await page.$(selectors.unreadMessage) !== null;
+}
+
+async function readMessage(){
+	try {
+		await page.click(selectors.unreadMessage);
+		/*
+			Descobre de quem veio a mensagem
+		*/
+		await page.click(selectors.headerChat);
+
+		var messages = await page.$$(selectors.recivedMessages);
+		var message = await page.evaluate(el => el.innerHTML, messages[messages.length - 1]);
+		//await page.waitFor(1000);
+		var infos = await page.$$(selectors.userInfo);
+		var phone = false;
+
+		for(let target of infos){
+		  const iHtml = await page.evaluate(el => el.innerHTML, target); 
+		  if (iHtml.indexOf('+55 ') !== -1) {
+		    phone = iHtml.split(' ').pop().replace('-', '');
+		    break;
+		  }
+		}
+
+		if(!phone){
+			logger.log('error', 'Nao consegui localizar o telefone!');
+			//await sendMessageOnChat('Não estou conseguindo localizar seu numero!');
+			return false;
+		}
+
+
+		if(!message || message.length === 0){
+			logger.log('error', 'Nao consegui localizar a mensagem!');
+			//await sendMessageOnChat('Não entendi!');
+			return false;
+		}
+
+		if(lastReadMessage.message !== message){
+			lastReadMessage = {phone: phone, message: message};
+			return lastReadMessage;
+		} else {
+			return false;
+		}
+	} catch(e) {
+		logger.log('error', e);
+		return false;
+	}
+	
+}
+
 /*
 	MAIN LOOP
 */
@@ -148,10 +233,21 @@ async function brain() {
 	/*
 		Check if has messages to send
 	*/
+	while(await hasNewMessage()){
+		var message = await readMessage();
+		if(message !== false) {
+			console.log(message);
+			logger.log('info', 'Nova mensagem:');
+			logger.log('info', message);
+			await sendMessageOnChat(message.message);
+		}
+	}
 
+	//ask();
 	/*
 		Check if has messages to process
 	*/
+	setTimeout(() => brain(), 50);
 }
 
 
@@ -160,3 +256,12 @@ async function brain() {
 	Starts things up
 */
 ignite();
+
+/*function ask(){
+	rl.question('Para quem voce quer mandar mensagem?', (answer) => {
+		rl.question('Qual a mensagem?', (msg) => {
+		  sendMessage(answer, msg);
+		  ask();
+		});
+	});
+}*/
