@@ -258,7 +258,11 @@ async function brain() {
 			console.log(message);
 			logger.log('info', 'Nova mensagem:');
 			logger.log('info', message);
-			sendMessageOnChat(processCommand(message.message));
+			var resposta = processCommand(message.message);
+			logger.log('info', 'resposta:');
+			logger.log('info', resposta);
+			
+			sendMessageOnChat(resposta);
 		}
 	}
 
