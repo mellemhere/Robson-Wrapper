@@ -77,7 +77,7 @@ async function ignite() {
 	*/
 	logger.log('info', 'Starting puppeteer!');
 	browser = await puppeteer.launch({
-		headless: false,
+		headless: true,
 		ignoreHTTPSErrors: true,
 		userDataDir: "./robson_data",
 		args: [
@@ -229,23 +229,20 @@ async function readMessage(){
 
 
 function processCommand(message){
-	return new Promise((resolve, reject) => {
-		var realMessage = message.toLowerCase();
 
-		switch(realMessage){
-			case "ping":
-				resolve("pong");
-				break;
-			case "dado":
-				resolve('O dado deu: *' + Math.floor(Math.random() * 6) + '*');
-				break;
-			default:
-				resolve(`Não entendi o comando *${message}*`);
-				break;
-		}
+	var realMessage = message.toLowerCase();
+
+	switch(realMessage){
+		case "ping":
+			return "pong";
+		case "dado":
+			return 'O dado deu: *' + Math.floor(Math.random() * 6) + '*';
+		default:
+			return `Não entendi o comando *${message}*`;
+			break;
+	}
 
 
-	});
 }
 
 /*
@@ -261,9 +258,7 @@ async function brain() {
 			console.log(message);
 			logger.log('info', 'Nova mensagem:');
 			logger.log('info', message);
-			await processCommand(message).then((response) => {
-				await sendMessageOnChat(response);
-			});
+			sendMessageOnChat(processCommand(message));
 		}
 	}
 
