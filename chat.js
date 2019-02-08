@@ -95,6 +95,11 @@ async function ignite() {
 
 	logger.log('info', 'Opening browser');
 	page = await browser.newPage();
+	page.on('error', msg => {
+		console.log('Deu erro!');
+		console.log(error);
+        throw msg ;
+    });
 	const override = Object.assign(page.viewport(), {width: 1366});
 	await page.setViewport(override);
 
